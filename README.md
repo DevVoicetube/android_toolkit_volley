@@ -35,7 +35,7 @@ android {
     ...
 }
 dependencies {
-    compile 'com.github.voicetube:android_toolkit_volley:1.0.0'
+    compile 'com.github.voicetube:android_toolkit_volley:1.0.1'
     //Libraries down below are required
     compile 'com.google.code.gson:gson:2.4'
     compile 'com.android.support:support-annotations:25.1.1'
