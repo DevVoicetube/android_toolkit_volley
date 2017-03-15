@@ -71,7 +71,7 @@ public class BaseVolleyPro {
         return this;
     }
 
-    public final void request(String endpoint, final MultiPartOption multiPartOption) {
+    public final void request(Method method, String endpoint, final MultiPartOption multiPartOption) {
         boolean hasOption = (multiPartOption != null && multiPartOption.getParameters() != null);
         if (!hasOption) {
             throw new RuntimeException("multi part option is null");
@@ -86,7 +86,7 @@ public class BaseVolleyPro {
             return;
         }
 
-        multipartRequest = new MultipartRequest(endpoint, multiPartOption.getMultipartEntityBuilder(), new Response.Listener<String>() {
+        multipartRequest = new MultipartRequest(UtilVolley.getMethod(method), endpoint, multiPartOption.getMultipartEntityBuilder(), new Response.Listener<String>() {
             @Override
             public void onResponse(String result) {
                 isLoading = false;
@@ -127,7 +127,7 @@ public class BaseVolleyPro {
 //                }
             }
         };
-        if(multiPartOption.enableMultiPartProgress){
+        if (multiPartOption.enableMultiPartProgress) {
             multipartRequest.setOnMultiPartProgress(new MultipartRequest.OnMultiPartProgress() {
                 @Override
                 public void onProgress(final long transferredBytes, final long totalSize) {
@@ -335,7 +335,7 @@ public class BaseVolleyPro {
     }
 
     public final void callOnSuccess(Object result) {
-        if(result ==null){
+        if (result == null) {
             simpleEvent.OnFailed(HttpError.Code.GSON_PARSE_ERROR, HttpError.Message.getMessage(HttpError.Code.GSON_PARSE_ERROR));
             return;
         }
