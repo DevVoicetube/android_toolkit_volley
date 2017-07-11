@@ -81,7 +81,7 @@ public class BaseVolleyPro {
 
         //release request
         cancelRequest();
-        log(method,multiPartOption,endpoint,UtilVolley.SOURCE_NETWORK);
+        log(method,multiPartOption,endpoint, UtilVolley.SOURCE_NETWORK);
 
         if (!UtilVolley.isNetworkAvailable(context)) {
             //network unavailable
@@ -351,7 +351,7 @@ public class BaseVolleyPro {
 
         Log.i(TAG,"multi request======================================");
         Log.i(TAG,String.format("%24s","source : ")+source);
-        Log.i(TAG,String.format("%24s","method : ")+UtilVolley.getMethodName(method));
+        Log.i(TAG,String.format("%24s","method : ")+ UtilVolley.getMethodName(method));
         Log.i(TAG,String.format("%24s","endpoint : ")+endpoint);
         if(header!=null){
             for (String key: header.keySet()) {
