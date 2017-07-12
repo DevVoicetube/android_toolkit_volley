@@ -11,8 +11,6 @@ import org.apache.http.entity.mime.content.StringBody;
 
 import java.io.File;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.HashMap;
 
 /**
@@ -33,12 +31,12 @@ public class ContentHashMap<String, ContentBody> extends HashMap<String, Content
             return;
         }
 
-        try {
-            value = (String) URLEncoder.encode((java.lang.String) value, "utf-8");
-        } catch (UnsupportedEncodingException e) {
-            Log.e((java.lang.String) TAG, "UnsupportedEncodingException");
-            e.printStackTrace();
-        }
+//        try {
+//            value = (String) URLEncoder.encode((java.lang.String) value, "utf-8");
+//        } catch (UnsupportedEncodingException e) {
+//            Log.e((java.lang.String) TAG, "UnsupportedEncodingException");
+//            e.printStackTrace();
+//        }
         logMap.put(key, value);
         put(key, (ContentBody) new StringBody((java.lang.String) value, ContentType.DEFAULT_TEXT));
     }
