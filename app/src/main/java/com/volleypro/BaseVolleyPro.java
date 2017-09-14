@@ -14,6 +14,7 @@ import com.android.volley.toolbox.MultipartRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.volleypro.enums.Method;
 import com.volleypro.error.HttpError;
@@ -249,7 +250,8 @@ public class BaseVolleyPro {
             @Override
             public byte[] getBody() throws AuthFailureError {
                 byte[] body = null;
-                if (parameters != null) body=gson.toJson(parameters).getBytes();
+                if (gson == null) gson = new GsonBuilder().setPrettyPrinting().create();
+                if (parameters != null) body = gson.toJson(parameters).getBytes();
                 return body;
             }
 
