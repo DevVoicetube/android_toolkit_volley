@@ -9,6 +9,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.InputStreamRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.MultipartRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -40,6 +41,7 @@ public class BaseVolleyPro {
     //request
     private RequestQueue requestQueue;
     private StringRequest stringRequest;
+    private JsonObjectRequest jsonObjectRequest;
     private MultipartRequest multipartRequest;
     private InputStreamRequest inputStreamRequest;
     private SimpleEvent simpleEvent;
@@ -81,7 +83,7 @@ public class BaseVolleyPro {
 
         //release request
         cancelRequest();
-        log(method,multiPartOption,endpoint, UtilVolley.SOURCE_NETWORK);
+        log(method, multiPartOption, endpoint, UtilVolley.SOURCE_NETWORK);
 
         if (!UtilVolley.isNetworkAvailable(context)) {
             //network unavailable
@@ -199,6 +201,56 @@ public class BaseVolleyPro {
                     return parameters;
                 }
                 return super.getParams();
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                if (header != null) {
+                    return header;
+                }
+                return super.getHeaders();
+            }
+
+        };
+
+
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(timeout, retryTimes, 0));
+        isLoading = true;
+        requestQueue.add(stringRequest);
+    }
+
+    public final void requestJsonRaw(final Method method, final String endpoint, final HashMap<String, String> header, final HashMap<String, Object> parameters, final String cachePath, final String cacheResult, final Boolean forceUseCacheOnNoNetwork) {
+        //release request
+        cancelRequest();
+        //check network
+        if (!UtilVolley.isNetworkAvailable(context)) {
+            if (cacheResult != null && forceUseCacheOnNoNetwork) {
+                //force user cache on network unavailable
+                callOnSuccess(cacheResult);
+            } else {
+                //network unavailable
+                callOnFailed(HttpError.Code.NETWORK_UNAVAILABLE, HttpError.Message.getMessage(HttpError.Code.NETWORK_UNAVAILABLE));
+            }
+            return;
+        }
+
+        //request
+        stringRequest = new StringRequest(UtilVolley.getMethod(method), endpoint, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String result) {
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        }) {
+
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                byte[] body = null;
+                if (parameters != null) body=gson.toJson(parameters).getBytes();
+                return body;
             }
 
             @Override
@@ -337,36 +389,36 @@ public class BaseVolleyPro {
         this.timeout = timeout;
     }
 
-    private void log(final Method method, final MultiPartOption option, final String endpoint, String source){
-        if(!enableLog){
+    private void log(final Method method, final MultiPartOption option, final String endpoint, String source) {
+        if (!enableLog) {
             return;
         }
-        HashMap<String, String> header=null;
-        HashMap<String, String> parameters=null;
+        HashMap<String, String> header = null;
+        HashMap<String, String> parameters = null;
 
-        if(option!=null){
-            header=option.getHeader();
-            parameters=option.getParameters().getLogMap();
+        if (option != null) {
+            header = option.getHeader();
+            parameters = option.getParameters().getLogMap();
         }
 
-        Log.i(TAG,"multi request======================================");
-        Log.i(TAG,String.format("%24s","source : ")+source);
-        Log.i(TAG,String.format("%24s","method : ")+ UtilVolley.getMethodName(method));
-        Log.i(TAG,String.format("%24s","endpoint : ")+endpoint);
-        if(header!=null){
-            for (String key: header.keySet()) {
-                Log.i(TAG,String.format("%24s","header : ")+String.format("%s : %s",key,header.get(key)));
+        Log.i(TAG, "multi request======================================");
+        Log.i(TAG, String.format("%24s", "source : ") + source);
+        Log.i(TAG, String.format("%24s", "method : ") + UtilVolley.getMethodName(method));
+        Log.i(TAG, String.format("%24s", "endpoint : ") + endpoint);
+        if (header != null) {
+            for (String key : header.keySet()) {
+                Log.i(TAG, String.format("%24s", "header : ") + String.format("%s : %s", key, header.get(key)));
             }
         }
 
-        if(parameters!=null){
-            for (String key: parameters.keySet()) {
-                Log.i(TAG, String.format("%24s", "parameters : ") + String.format("%s : %s", key,parameters.get(key)));
+        if (parameters != null) {
+            for (String key : parameters.keySet()) {
+                Log.i(TAG, String.format("%24s", "parameters : ") + String.format("%s : %s", key, parameters.get(key)));
             }
         }
 
 
-        Log.i(TAG,"multi request======================================");
+        Log.i(TAG, "multi request======================================");
     }
 
     public final void callOnSuccess(Object result) {
@@ -553,6 +605,84 @@ public class BaseVolleyPro {
 
             multipartEntityBuilder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
             return multipartEntityBuilder;
+        }
+    }
+
+    public static class JsonRawOption {
+        private boolean enableFileProgress;
+        private HashMap<String, String> header;
+        private HashMap<String, Object> parameters;
+        private String cachePath;
+        private long expiredDuration = 0;
+        private boolean forceUseCacheOnNoNetwork = false;
+
+        public JsonRawOption enableFileProgress() {
+            enableFileProgress = true;
+            return this;
+        }
+
+        public boolean isEnableFileProgress() {
+            return enableFileProgress;
+        }
+
+        public JsonRawOption setCache(String cachePath, long expiredDuration, boolean forceUseCacheOnNoNetwork) {
+            this.cachePath = cachePath;
+            this.expiredDuration = expiredDuration;
+            this.forceUseCacheOnNoNetwork = forceUseCacheOnNoNetwork;
+            return this;
+        }
+
+        public String getCachePath() {
+            return cachePath;
+        }
+
+        public JsonRawOption setCachePath(String cachePath) {
+            this.cachePath = cachePath;
+            return this;
+        }
+
+        public long getExpiredDuration() {
+            return expiredDuration;
+        }
+
+        public JsonRawOption setExpiredDuration(long expiredDuration) {
+            this.expiredDuration = expiredDuration;
+            return this;
+        }
+
+        public boolean isForceUseCacheOnNoNetwork() {
+            return forceUseCacheOnNoNetwork;
+        }
+
+        public JsonRawOption setForceUseCacheOnNoNetwork(boolean forceUseCacheOnNoNetwork) {
+            this.forceUseCacheOnNoNetwork = forceUseCacheOnNoNetwork;
+            return this;
+        }
+
+        public HashMap<String, String> getHeader() {
+            if (header == null) {
+                return null;
+            }
+            HashMap<String, String> hashMap = new HashMap<>();
+            for (String key : header.keySet()) {
+                hashMap.put(key, header.get(key));
+            }
+            return hashMap;
+        }
+
+        public JsonRawOption setHeader(HashMap<String, String> header) {
+            this.header = header;
+            return this;
+        }
+
+        public HashMap<String, Object> getParameters() {
+            if (parameters == null) parameters = new HashMap<>();
+            return parameters;
+        }
+
+        public JsonRawOption setParameters(HashMap<String, Object> parameters) {
+            this.parameters = parameters;
+            return this;
         }
     }
 

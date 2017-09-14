@@ -70,6 +70,46 @@ public class VolleyPro extends BaseVolleyPro {
         return this;
     }
 
+    public VolleyPro requestJsonRaw(final Method method, final String endpoint, JsonRawOption option){
+        HashMap<String, String> header=null;
+        HashMap<String, Object> parameters=null;
+        String cachePath=null;
+        long expiredDuration=0;
+        boolean forceUseCacheOnNoNetwork=false;
+
+        if(option!=null){
+            header=option.getHeader();
+            parameters=option.getParameters();
+            cachePath=option.getCachePath();
+            expiredDuration=option.getExpiredDuration();
+            forceUseCacheOnNoNetwork=option.isForceUseCacheOnNoNetwork();
+        }
+
+        boolean isNetworkAvailable= UtilVolley.isNetworkAvailable(context);
+        boolean isCacheExist= UtilVolley.isFileExist(cachePath);
+        boolean isCacheExpired= UtilVolley.isFileExpired(cachePath,expiredDuration);
+        String cacheResult= UtilVolley.readFile(cachePath);
+
+        if(isNetworkAvailable){
+            if(isCacheExist && !isCacheExpired){
+                log(method, endpoint, UtilVolley.SOURCE_CACHE);
+                callOnSuccess(cacheResult);
+            }else{
+                log(method, endpoint, UtilVolley.SOURCE_NETWORK);
+                requestJsonRaw(method, endpoint, header, parameters,cachePath,cacheResult , forceUseCacheOnNoNetwork);
+            }
+        }else{
+            if(isCacheExist && forceUseCacheOnNoNetwork){
+                log(method, endpoint, UtilVolley.SOURCE_CACHE);
+                callOnSuccess(cacheResult);
+            }else{
+                log(method, endpoint, UtilVolley.SOURCE_NONE);
+                callOnFailed(HttpError.Code.NETWORK_UNAVAILABLE, HttpError.Message.getMessage(HttpError.Code.NETWORK_UNAVAILABLE));
+            }
+        }
+        return this;
+    }
+
     public VolleyPro requestFile(final Method method, final String endpoint, Option option){
         this.option=option;
         HashMap<String, String> header=null;
