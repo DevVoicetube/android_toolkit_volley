@@ -239,10 +239,24 @@ public class BaseVolleyPro {
         stringRequest = new StringRequest(UtilVolley.getMethod(method), endpoint, new Response.Listener<String>() {
             @Override
             public void onResponse(String result) {
+                isLoading = false;
+                callOnSuccess(result);
+                UtilVolley.writeFileAsync(cachePath, result);
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                isLoading = false;
+                if (cacheResult != null && (forceUseCacheOnNoNetwork != null && forceUseCacheOnNoNetwork)) {
+                    //force user cache on network unavailable
+                    callOnSuccess(cacheResult);
+                    return;
+                } else {
+                    //load failed
+                    boolean hasError = error != null && error.networkResponse != null;
+
+                    callOnFailed(hasError ? error.networkResponse.statusCode : HttpError.Code.UNKNOW_ERROR, HttpError.Message.getMessage(hasError ? error.networkResponse.statusCode : HttpError.Code.UNKNOW_ERROR));
+                }
 
             }
         }) {

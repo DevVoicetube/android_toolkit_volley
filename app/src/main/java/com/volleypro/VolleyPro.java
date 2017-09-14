@@ -25,7 +25,7 @@ public class VolleyPro extends BaseVolleyPro {
     public VolleyPro(Context context) {
         super(context);
         this.context = context;
-        this.gson=new GsonBuilder().setPrettyPrinting().create();
+        this.gson = new GsonBuilder().setPrettyPrinting().create();
     }
 
     public VolleyPro request(final Method method, final String endpoint) {
@@ -75,6 +75,7 @@ public class VolleyPro extends BaseVolleyPro {
     }
 
     public VolleyPro requestJsonRaw(final Method method, final String endpoint, JsonRawOption option) {
+        this.jsonRawOption = option;
         HashMap<String, String> header = null;
         HashMap<String, Object> parameters = null;
         String cachePath = null;
@@ -238,7 +239,7 @@ public class VolleyPro extends BaseVolleyPro {
         }
 
         if (parameters != null) {
-            Log.i(TAG, String.format("%24s", "raw : \n") + gson.toJson(parameters) );
+            Log.i(TAG, String.format("%24s", "raw : \n") + gson.toJson(parameters));
         }
 
 
