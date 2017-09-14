@@ -14,7 +14,6 @@ import com.android.volley.toolbox.MultipartRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.volleypro.enums.Method;
 import com.volleypro.error.HttpError;
@@ -220,7 +219,7 @@ public class BaseVolleyPro {
         requestQueue.add(stringRequest);
     }
 
-    public final void requestJsonRaw(final Method method, final String endpoint, final HashMap<String, String> header, final HashMap<String, Object> parameters, final String cachePath, final String cacheResult, final Boolean forceUseCacheOnNoNetwork) {
+    public final void requestRaw(final Method method, final String endpoint, final HashMap<String, String> header, final String parameters, final String cachePath, final String cacheResult, final Boolean forceUseCacheOnNoNetwork) {
         //release request
         cancelRequest();
         //check network
@@ -264,8 +263,7 @@ public class BaseVolleyPro {
             @Override
             public byte[] getBody() throws AuthFailureError {
                 byte[] body = null;
-                if (gson == null) gson = new GsonBuilder().setPrettyPrinting().create();
-                if (parameters != null) body = gson.toJson(parameters).getBytes();
+                if (parameters != null) body =parameters.getBytes();
                 return body;
             }
 
@@ -624,15 +622,15 @@ public class BaseVolleyPro {
         }
     }
 
-    public static class JsonRawOption {
+    public static class RawOption {
         private boolean enableFileProgress;
         private HashMap<String, String> header;
-        private HashMap<String, Object> parameters;
+        private String parameters;
         private String cachePath;
         private long expiredDuration = 0;
         private boolean forceUseCacheOnNoNetwork = false;
 
-        public JsonRawOption enableFileProgress() {
+        public RawOption enableFileProgress() {
             enableFileProgress = true;
             return this;
         }
@@ -641,7 +639,7 @@ public class BaseVolleyPro {
             return enableFileProgress;
         }
 
-        public JsonRawOption setCache(String cachePath, long expiredDuration, boolean forceUseCacheOnNoNetwork) {
+        public RawOption setCache(String cachePath, long expiredDuration, boolean forceUseCacheOnNoNetwork) {
             this.cachePath = cachePath;
             this.expiredDuration = expiredDuration;
             this.forceUseCacheOnNoNetwork = forceUseCacheOnNoNetwork;
@@ -652,7 +650,7 @@ public class BaseVolleyPro {
             return cachePath;
         }
 
-        public JsonRawOption setCachePath(String cachePath) {
+        public RawOption setCachePath(String cachePath) {
             this.cachePath = cachePath;
             return this;
         }
@@ -661,7 +659,7 @@ public class BaseVolleyPro {
             return expiredDuration;
         }
 
-        public JsonRawOption setExpiredDuration(long expiredDuration) {
+        public RawOption setExpiredDuration(long expiredDuration) {
             this.expiredDuration = expiredDuration;
             return this;
         }
@@ -670,7 +668,7 @@ public class BaseVolleyPro {
             return forceUseCacheOnNoNetwork;
         }
 
-        public JsonRawOption setForceUseCacheOnNoNetwork(boolean forceUseCacheOnNoNetwork) {
+        public RawOption setForceUseCacheOnNoNetwork(boolean forceUseCacheOnNoNetwork) {
             this.forceUseCacheOnNoNetwork = forceUseCacheOnNoNetwork;
             return this;
         }
@@ -686,17 +684,17 @@ public class BaseVolleyPro {
             return hashMap;
         }
 
-        public JsonRawOption setHeader(HashMap<String, String> header) {
+        public RawOption setHeader(HashMap<String, String> header) {
             this.header = header;
             return this;
         }
 
-        public HashMap<String, Object> getParameters() {
-            if (parameters == null) parameters = new HashMap<>();
+        public String getParameters() {
+            if (parameters == null) parameters = "";
             return parameters;
         }
 
-        public JsonRawOption setParameters(HashMap<String, Object> parameters) {
+        public RawOption setParameters(String parameters) {
             this.parameters = parameters;
             return this;
         }

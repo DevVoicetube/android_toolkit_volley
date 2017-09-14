@@ -20,7 +20,7 @@ public class VolleyPro extends BaseVolleyPro {
     private Context context;
     private Gson gson;
     private Option option;
-    private JsonRawOption jsonRawOption;
+    private RawOption rawOption;
 
     public VolleyPro(Context context) {
         super(context);
@@ -74,10 +74,10 @@ public class VolleyPro extends BaseVolleyPro {
         return this;
     }
 
-    public VolleyPro requestJsonRaw(final Method method, final String endpoint, JsonRawOption option) {
-        this.jsonRawOption = option;
+    public VolleyPro requestRaw(final Method method, final String endpoint, RawOption option) {
+        this.rawOption = option;
         HashMap<String, String> header = null;
-        HashMap<String, Object> parameters = null;
+        String parameters = null;
         String cachePath = null;
         long expiredDuration = 0;
         boolean forceUseCacheOnNoNetwork = false;
@@ -101,7 +101,7 @@ public class VolleyPro extends BaseVolleyPro {
                 callOnSuccess(cacheResult);
             } else {
                 logRaw(method, endpoint, UtilVolley.SOURCE_NETWORK);
-                requestJsonRaw(method, endpoint, header, parameters, cachePath, cacheResult, forceUseCacheOnNoNetwork);
+                requestRaw(method, endpoint, header, parameters, cachePath, cacheResult, forceUseCacheOnNoNetwork);
             }
         } else {
             if (isCacheExist && forceUseCacheOnNoNetwork) {
@@ -212,17 +212,17 @@ public class VolleyPro extends BaseVolleyPro {
             return;
         }
         HashMap<String, String> header = null;
-        HashMap<String, Object> parameters = null;
+        String parameters = null;
         String cachePath = null;
         long expiredDuration = 0;
         boolean forceUseCacheOnNoNetwork = false;
 
-        if (jsonRawOption != null) {
-            header = jsonRawOption.getHeader();
-            parameters = jsonRawOption.getParameters();
-            cachePath = jsonRawOption.getCachePath();
-            expiredDuration = jsonRawOption.getExpiredDuration();
-            forceUseCacheOnNoNetwork = jsonRawOption.isForceUseCacheOnNoNetwork();
+        if (rawOption != null) {
+            header = rawOption.getHeader();
+            parameters = rawOption.getParameters();
+            cachePath = rawOption.getCachePath();
+            expiredDuration = rawOption.getExpiredDuration();
+            forceUseCacheOnNoNetwork = rawOption.isForceUseCacheOnNoNetwork();
         }
 
         Log.i(TAG, "request======================================");
@@ -239,7 +239,7 @@ public class VolleyPro extends BaseVolleyPro {
         }
 
         if (parameters != null) {
-            Log.i(TAG, String.format("%24s", "raw : \n") + gson.toJson(parameters));
+            Log.i(TAG, String.format("%24s", "raw : \n") + parameters);
         }
 
 
