@@ -436,13 +436,13 @@ public class BaseVolleyPro {
     }
 
     public final void callOnSuccess(Object result) {
+        if (simpleEvent == null) return;
+
         if (result == null) {
             simpleEvent.OnFailed(HttpError.Code.GSON_PARSE_ERROR, HttpError.Message.getMessage(HttpError.Code.GSON_PARSE_ERROR));
             return;
         }
-        if (simpleEvent == null) {
-            return;
-        }
+
         if ((result instanceof String) && type.hashCode() == String.class.hashCode()) {
             simpleEvent.OnSuccess(result);
             return;
@@ -452,9 +452,7 @@ public class BaseVolleyPro {
             return;
         }
 
-        if (gson == null) {
-            gson = new Gson();
-        }
+        if (gson == null) gson = new Gson();
 
         if ((result instanceof String)) {
             try {
